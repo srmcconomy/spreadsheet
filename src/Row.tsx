@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { useEditingCellRef } from "./EditorContext";
 import { IColumnProps } from "./IColumnProps";
 import { usePropsRef } from "./PropsContext";

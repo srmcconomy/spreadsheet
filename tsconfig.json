@@ -6,7 +6,7 @@
     "target": "ES5",
     "lib": ["ESNext", "DOM"],
     "sourceMap": true,
-    "jsx": "react-jsx",
+    "jsx": "react",
     "rootDirs": ["src"],
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,

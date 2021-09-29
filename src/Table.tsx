@@ -8,7 +8,7 @@ import { ITableProps } from "./ITableProps";
 import { PropsRefProvider } from "./PropsContext";
 import { Headers } from "./Headers";
 import { useUndo } from "./useUndo";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { errorTooltipContext } from "./ErrorTooltipContext";
 import { ErrorTooltip } from "./ErrorTooltip";
 import { Selection } from "./Selection";

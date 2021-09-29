@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from "react";
+import React, { useEffect, useLayoutEffect, useRef } from "react";
 import styled from "styled-components";
 import { useEditingCell } from "./EditorContext";
 import { ISelection } from "./ISelection";

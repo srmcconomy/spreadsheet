@@ -1,6 +1,7 @@
 import { IColumnProps } from "./IColumnProps";
 import { Row } from "./Row";
 import { viewportContext } from "./ViewportContext";
+import React from "react";
 
 export const Rows = <TRow, TError>({
   numStickyColumns,

@@ -1,3 +1,4 @@
+import React from "react";
 import { useEditingCell, useEditingCellRef } from "./EditorContext";
 import styled from "styled-components";
 import { usePropsRef } from "./PropsContext";

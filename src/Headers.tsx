@@ -1,6 +1,7 @@
 import { HeaderCell } from "./HeaderCell";
 import { IColumnProps } from "./IColumnProps";
 import { stickyColumnContext } from "./StickyColumnContext";
+import React from "react";
 
 export const Headers = <TRow, TError>({
   columnProps,

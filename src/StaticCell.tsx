@@ -1,4 +1,5 @@
 import { CellWrapper } from "./CellWrapper";
+import React from "react";
 
 type IProps<TError> = {
   x: number;
