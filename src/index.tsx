@@ -1,2 +1,2 @@
 export { Table } from "./Table";
-export * as UndoStack from "./UndoStack";
+export { useSpreadsheet } from "./useTableProps";

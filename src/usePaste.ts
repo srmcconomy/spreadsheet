@@ -28,10 +28,9 @@ export const usePaste = <TRow, TError>() => {
       const repeatY =
         Math.floor(selectionRef.current.height / pastedRows.length) || 1;
 
-      const changes: { row: TRow; y: number }[] = [];
+      const changes: TRow[] = [];
       for (let y = 0; y < pastedRows.length * repeatY; y++) {
-        let newRow =
-          propsRef.current.undoStack.rows[selectionRef.current.start.y + y];
+        let newRow = propsRef.current.rows[selectionRef.current.start.y + y];
         for (let x = 0; x < pastedRows[0].length * repeatX; x++) {
           newRow = propsRef.current.columnProps[
             selectionRef.current.start.x + x
@@ -40,7 +39,7 @@ export const usePaste = <TRow, TError>() => {
             pastedRows[y % pastedRows.length][x % pastedRows[0].length]
           );
         }
-        changes.push({ y: selectionRef.current.start.y + y, row: newRow });
+        changes.push(newRow);
       }
       propsRef.current.onChange(changes);
 

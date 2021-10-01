@@ -1,30 +1,38 @@
 import React, { useEffect, useRef } from "react";
 import { CellWrapper } from "./CellWrapper";
 import { stickyColumnContext } from "./StickyColumnContext";
+import { viewportSizeContext } from "./ViewportContext";
 
-type IProps<TError> = {
+type IProps = {
   x: number;
   y: number;
-  error: TError | null;
+  hasError: boolean;
   children: React.ReactNode;
+  numHeaders: number;
+  isSelectable: boolean;
+  borderRightColor?: string;
 };
 
-export const StickyCell = <TError extends unknown>({
+export const StickyCell = ({
   x,
   y,
-  error,
+  hasError,
+  numHeaders,
   children,
-}: IProps<TError>) => {
+  isSelectable,
+  borderRightColor,
+}: IProps) => {
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const stickyCellWidths = stickyColumnContext.useState();
   const setStickyCellWidths = stickyColumnContext.useSetter();
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const viewportSize = viewportSizeContext.useState();
 
   useEffect(() => {
     if (!wrapperRef.current) {
       return;
     }
-    if (y % 20 === 0) {
+    if (y % viewportSize === 0) {
       const updateStickyWidths = () =>
         setStickyCellWidths((widths) => {
           if (!wrapperRef.current) {
@@ -40,9 +48,9 @@ export const StickyCell = <TError extends unknown>({
       return () => resizeObserverRef.current?.disconnect();
     }
     return;
-  }, [y % 20]);
+  }, [y % viewportSize]);
 
-  const yPosition = (y % 20) + 2;
+  const yPosition = (y % viewportSize) + 1 + numHeaders;
   const left = stickyCellWidths.slice(0, x).reduce((acc, v) => acc + v, 0);
 
   return (
@@ -50,15 +58,19 @@ export const StickyCell = <TError extends unknown>({
       ref={wrapperRef}
       x={x}
       y={y}
-      error={error}
+      hasError={hasError}
       style={{
         gridRow: `${yPosition} / ${yPosition + 1}`,
         gridColumn: `${x + 1} / ${x + 2}`,
-        transform: `translateY(${Math.floor(y / 20) * 20 * 100}%)`,
+        transform: `translateY(${
+          Math.floor(y / viewportSize) * viewportSize * 100
+        }%)`,
         position: "sticky",
         left,
         zIndex: 2,
       }}
+      isSelectable={isSelectable}
+      borderRightColor={borderRightColor}
     >
       {children}
     </CellWrapper>

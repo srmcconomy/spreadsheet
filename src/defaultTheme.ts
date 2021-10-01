@@ -14,17 +14,14 @@ export const defaultTheme: ITheme = {
   },
 
   cells: {
-    interGroupBorderColor: "#dddddd",
-    intraGroupBorderColor: "#dddddd",
-    stickyBorderColor: "#dddddd",
-    outerBorderColor: "#dddddd",
+    borderColor: "#dddddd",
     backgroundColor: "white",
   },
 
   headers: {
-    interGroupBorderColor: "#dddddd",
-    intraGroupBorderColor: "#dddddd",
-    outerBorderColor: "#dddddd",
+    borderColor: "#dddddd",
     backgroundColor: "white",
   },
+
+  errorColor: "red",
 };

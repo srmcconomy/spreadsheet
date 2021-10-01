@@ -1,9 +1,10 @@
 {
   "name": "@srmcconomy/spreadsheet",
-  "version": "0.0.1",
+  "version": "0.0.6",
   "module": "dist",
   "license": "MIT",
   "packageManager": "yarn@3.0.1",
+  "types": "dist/index.d.ts",
   "scripts": {
     "start": "webpack-dev-server"
   },

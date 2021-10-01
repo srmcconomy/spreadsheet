@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { useEditingCellRef } from "./EditorContext";
+import { editingCellContext } from "./EditorContext";
 import { IColumnProps } from "./IColumnProps";
 import { usePropsRef } from "./PropsContext";
 import { selectionContext } from "./SelectionContext";
@@ -10,7 +10,10 @@ type IProps<TRow, TError> = {
   y: number;
   row: TRow;
   columnProps: IColumnProps<TRow, TError>[];
+  errors: (TError | null)[];
   numStickyColumns: number;
+  numHeaders: number;
+  numUnselectableColumns: number;
 };
 
 export const Row = <TRow, TError>({
@@ -18,6 +21,9 @@ export const Row = <TRow, TError>({
   row,
   columnProps,
   numStickyColumns,
+  numHeaders,
+  errors,
+  numUnselectableColumns,
 }: IProps<TRow, TError>) =>
   useMemo(
     () => (
@@ -26,19 +32,33 @@ export const Row = <TRow, TError>({
         row={row}
         columnProps={columnProps}
         numStickyColumns={numStickyColumns}
+        numHeaders={numHeaders}
+        errors={errors}
+        numUnselectableColumns={numUnselectableColumns}
       />
     ),
-    [y, row, columnProps, numStickyColumns]
+    [
+      y,
+      row,
+      columnProps,
+      numStickyColumns,
+      numHeaders,
+      errors,
+      numUnselectableColumns,
+    ]
   );
 
 const MemoRow = <TRow, TError>({
   y,
   row,
   columnProps,
+  errors,
   numStickyColumns,
+  numHeaders,
+  numUnselectableColumns,
 }: IProps<TRow, TError>) => {
   const propsRef = usePropsRef();
-  const { setEditingCell } = useEditingCellRef();
+  const setEditingCell = editingCellContext.useSetter();
   const setSelection = selectionContext.useSetter();
 
   if (!row) {
@@ -48,7 +68,7 @@ const MemoRow = <TRow, TError>({
   return (
     <>
       {columnProps.map((props, x) => {
-        const error = props.validate(row);
+        const error = errors[x];
         const content = props.renderCell({
           row,
           onEdit: () => {
@@ -60,14 +80,35 @@ const MemoRow = <TRow, TError>({
               primary: { x, y },
             });
           },
+          errors,
           onChange: (row) => propsRef.current.onChange([{ y, row }]),
         });
         return x < numStickyColumns ? (
-          <StickyCell x={x} y={y} key={x} error={error}>
+          <StickyCell
+            x={x}
+            y={y}
+            key={x}
+            hasError={!!error}
+            numHeaders={numHeaders}
+            isSelectable={x >= numUnselectableColumns}
+            borderRightColor={
+              props.borderRightColor ?? columnProps[x + 1]?.borderLeftColor
+            }
+          >
             {content}
           </StickyCell>
         ) : (
-          <StaticCell x={x} y={y} key={x} error={error}>
+          <StaticCell
+            x={x}
+            y={y}
+            key={x}
+            hasError={!!error}
+            numHeaders={numHeaders}
+            isSelectable={x >= numUnselectableColumns}
+            borderRightColor={
+              props.borderRightColor ?? columnProps[x + 1]?.borderLeftColor
+            }
+          >
             {content}
           </StaticCell>
         );

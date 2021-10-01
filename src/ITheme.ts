@@ -1,17 +1,12 @@
 export type ITheme = {
   headers: {
+    borderColor: string;
     backgroundColor: string;
-    intraGroupBorderColor: string;
-    interGroupBorderColor: string;
-    outerBorderColor: string;
   };
 
   cells: {
+    borderColor: string;
     backgroundColor: string;
-    intraGroupBorderColor: string;
-    interGroupBorderColor: string;
-    outerBorderColor: string;
-    stickyBorderColor: string;
   };
 
   selection: {
@@ -25,4 +20,6 @@ export type ITheme = {
       backgroundColor: string;
     };
   };
+
+  errorColor: string;
 };

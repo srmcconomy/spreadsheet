@@ -1,28 +1,31 @@
 import { isSelectingContext, selectionContext } from "./SelectionContext";
 import styled from "styled-components";
-import { useEditingCellRef } from "./EditorContext";
+import { editingCellContext } from "./EditorContext";
 import React, { useRef } from "react";
-import { errorTooltipContext } from "./ErrorTooltipContext";
+import { hoveredCellContext } from "./hoveredCellContext";
 
-type IProps<TError> = {
+type IProps = {
   x: number;
   y: number;
   style: React.CSSProperties;
-  error: TError | null;
   children: React.ReactNode;
+  hasError: boolean;
+  isSelectable: boolean;
+  borderRightColor?: string;
 };
 
 export const CellWrapper = React.forwardRef(
-  <TError extends unknown>(
-    { x, y, style, error, children }: IProps<TError>,
+  (
+    { x, y, style, children, hasError, isSelectable, borderRightColor }: IProps,
     ref: React.ForwardedRef<HTMLDivElement>
   ) => {
     const setSelection = selectionContext.useSetter();
     const setIsSelecting = isSelectingContext.useSetter();
     const isSelectingRef = isSelectingContext.useRef();
-    const { editingCellRef, setEditingCell } = useEditingCellRef();
+    const editingCellRef = editingCellContext.useRef();
+    const setEditingCell = editingCellContext.useSetter();
     const cellRef = useRef<HTMLDivElement | null>(null);
-    const setErrorTooltip = errorTooltipContext.useSetter();
+    const setHoveredCell = hoveredCellContext.useSetter();
 
     return (
       <CellContainer
@@ -36,35 +39,41 @@ export const CellWrapper = React.forwardRef(
             }
           }
         }}
-        onMouseDown={(e) => {
-          if (e.button !== 0) {
-            return;
-          }
-          if (
-            editingCellRef.current?.x === x &&
-            editingCellRef.current?.y === y
-          ) {
-            return;
-          }
-          setEditingCell(null);
-          setSelection({
-            primary: { x, y },
-            start: { x, y },
-            height: 1,
-            width: 1,
-          });
-          setIsSelecting(true);
-        }}
-        onDoubleClick={() => {
-          setEditingCell({ x, y });
-        }}
+        onMouseDown={
+          isSelectable
+            ? (e) => {
+                if (e.button !== 0) {
+                  return;
+                }
+                if (
+                  editingCellRef.current?.x === x &&
+                  editingCellRef.current?.y === y
+                ) {
+                  return;
+                }
+                setEditingCell(null);
+                setSelection({
+                  primary: { x, y },
+                  start: { x, y },
+                  height: 1,
+                  width: 1,
+                });
+                setIsSelecting(true);
+              }
+            : undefined
+        }
+        onDoubleClick={
+          isSelectable
+            ? () => {
+                setEditingCell({ x, y });
+              }
+            : undefined
+        }
         onMouseEnter={() => {
-          if (cellRef.current && error) {
-            setErrorTooltip({ el: cellRef.current, error, x });
-          } else {
-            setErrorTooltip(null);
+          if (cellRef.current) {
+            setHoveredCell({ el: cellRef.current, x, y });
           }
-          if (isSelectingRef.current) {
+          if (isSelectable && isSelectingRef.current) {
             setSelection(
               (selection) =>
                 selection && {
@@ -80,8 +89,9 @@ export const CellWrapper = React.forwardRef(
           }
         }}
         style={style}
+        borderRightColor={borderRightColor}
       >
-        {error ? (
+        {hasError ? (
           <>
             <InvalidIndicator />
           </>
@@ -95,19 +105,19 @@ export const CellWrapper = React.forwardRef(
 const InvalidIndicator = styled.div`
   height: 0;
   width: 0;
-  border-top: 6px solid red;
+  border-top: 6px solid ${({ theme }) => theme.errorColor};
   border-left: 6px solid transparent;
   position: absolute;
   right: 0;
   top: 0;
 `;
 
-const CellContainer = styled.div`
-  padding: 4px 8px;
-  border-right: 1px solid #dddddd;
-  border-bottom: 1px solid #dddddd;
-  background: white;
+const CellContainer = styled.div<{ borderRightColor?: string }>`
+  border-right: 1px solid
+    ${({ borderRightColor, theme }) =>
+      borderRightColor ?? theme.cells.borderColor};
+  border-bottom: 1px solid ${({ theme }) => theme.cells.borderColor};
+  background: ${({ theme }) => theme.cells.backgroundColor};
   display: flex;
   align-items: center;
-  justify-content: center;
 `;

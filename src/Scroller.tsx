@@ -1,8 +1,8 @@
-import React, { useMemo, useRef, useContext } from "react";
+import React, { useMemo, useRef, useContext, useEffect } from "react";
 import styled from "styled-components";
-import { errorTooltipContext } from "./ErrorTooltipContext";
+import { hoveredCellContext } from "./hoveredCellContext";
 import { usePropsRef } from "./PropsContext";
-import { viewportContext } from "./ViewportContext";
+import { viewportStartContext, viewportSizeContext } from "./ViewportContext";
 
 const debounce = <TArgs extends any[]>(f: (...args: TArgs) => void) => {
   let lastArgs: TArgs;
@@ -26,10 +26,29 @@ const scrollerRefContext = React.createContext<{
 export const useScrollerRef = () => useContext(scrollerRefContext);
 
 export const Scroller = ({ children }: { children: React.ReactNode }) => {
-  const setViewPortStart = viewportContext.useSetter();
-  const setErrorTooltip = errorTooltipContext.useSetter();
+  const setViewPortStart = viewportStartContext.useSetter();
+  const setViewportSize = viewportSizeContext.useSetter();
+  const setHoveredCell = hoveredCellContext.useSetter();
   const { rowHeight } = usePropsRef().current;
   const scrollerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!scrollerRef.current) {
+      return;
+    }
+    const resizeObserver = new ResizeObserver(
+      debounce(() => {
+        if (!scrollerRef.current) {
+          return;
+        }
+        setViewportSize(
+          Math.ceil(scrollerRef.current.clientHeight / rowHeight)
+        );
+      })
+    );
+    resizeObserver.observe(scrollerRef.current);
+    return () => resizeObserver.disconnect();
+  }, [rowHeight]);
 
   const handleScroll = useMemo(
     () =>
@@ -42,9 +61,9 @@ export const Scroller = ({ children }: { children: React.ReactNode }) => {
     <scrollerRefContext.Provider value={scrollerRef}>
       <ScrollerContainer
         ref={scrollerRef}
-        onMouseLeave={() => setErrorTooltip(null)}
+        onMouseLeave={() => setHoveredCell(null)}
         onScroll={(e) => {
-          setErrorTooltip(null);
+          setHoveredCell(null);
           handleScroll(e.currentTarget.scrollTop);
         }}
       >
@@ -55,9 +74,8 @@ export const Scroller = ({ children }: { children: React.ReactNode }) => {
 };
 
 const ScrollerContainer = styled.div`
-  height: 70vh;
   overflow: auto;
-  width: 500px;
-  border-top: 1px solid #dddddd;
-  border-left: 1px solid #dddddd;
+  border-top: 1px solid ${({ theme }) => theme.cells.borderColor};
+  border-left: 1px solid ${({ theme }) => theme.cells.borderColor};
+  background: ${({ theme }) => theme.cells.backgroundColor};
 `;

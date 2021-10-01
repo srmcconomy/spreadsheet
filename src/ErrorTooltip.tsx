@@ -2,20 +2,22 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { usePopper } from "react-popper";
 import styled from "styled-components";
-import { errorTooltipContext } from "./ErrorTooltipContext";
-import { IColumnProps } from "./IColumnProps";
+import { hoveredCellContext } from "./hoveredCellContext";
 import { isSelectingContext } from "./SelectionContext";
 
-export const ErrorTooltip = <TRow, TError>({
-  columnProps,
+export const ErrorTooltip = <TError extends unknown>({
+  renderErrorTooltip,
+  errors,
 }: {
-  columnProps: IColumnProps<TRow, TError>[];
+  renderErrorTooltip: (error: TError) => React.ReactNode;
+  errors: (TError | null)[][];
 }) => {
-  const { el, error, x } = errorTooltipContext.useState() ?? {};
+  const { el, x, y } = hoveredCellContext.useState() ?? {};
   const isSelecting = isSelectingContext.useState();
   const [tooltipElement, setTooltipElement] = useState<HTMLDivElement | null>(
     null
   );
+  const error = x !== undefined && y !== undefined ? errors[y][x] : null;
   const { styles, attributes } = usePopper(error ? el : null, tooltipElement, {
     placement: "bottom-start",
   });
@@ -37,7 +39,7 @@ export const ErrorTooltip = <TRow, TError>({
       ref={setTooltipElement}
       visible={!!error && visible && !isSelecting}
     >
-      {error && x !== undefined && columnProps[x].renderErrorTooltip(error)}
+      {error && x !== undefined && renderErrorTooltip(error)}
     </TooltipContainer>,
     document.body
   );

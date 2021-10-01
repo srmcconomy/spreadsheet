@@ -1,10 +1,17 @@
 import styled from "styled-components";
 
-export const HeaderCell = styled.div`
-  border-bottom: 1px solid #bbbbbb;
-  border-right: 1px solid #dddddd;
-  padding: 4px 8px;
+export const HeaderCell = styled.div<{
+  borderBottomColor?: string;
+  borderRightColor?: string;
+}>`
+  border-bottom: 1px solid
+    ${({ borderBottomColor, theme }) =>
+      borderBottomColor ?? theme.headers.borderColor};
+  border-right: 1px solid
+    ${({ borderRightColor, theme }) =>
+      borderRightColor ?? theme.headers.borderColor};
   position: sticky;
-  top: 0;
-  background: white;
+  background: ${({ theme }) => theme.headers.backgroundColor};
+  display: flex;
+  align-items: center;
 `;

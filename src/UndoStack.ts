@@ -1,82 +1,106 @@
 import { IUndoStack } from "./IUndoStack";
 
-export const create = <TRow>(rows: TRow[]): IUndoStack<TRow> => ({
+export const create = <TRow>(): IUndoStack<TRow> => ({
   stack: [],
-  rows,
   index: -1,
 });
 
-export const undo = <TRow>(undoStack: IUndoStack<TRow>): IUndoStack<TRow> => {
+export const undo = <TRow, TKey>(
+  undoStack: IUndoStack<TRow>,
+  rows: TRow[],
+  indexByKey: Map<TKey, number>,
+  getKey: (row: TRow) => TKey
+): [IUndoStack<TRow>, TRow[]] => {
   if (undoStack.index < 0) {
-    return undoStack;
+    return [undoStack, rows];
   }
-  const rows = [...undoStack.rows];
-  undoStack.stack[undoStack.index].undo.forEach(({ row, y }) => {
-    rows[y] = row;
+  const newRows = [...rows];
+  undoStack.stack[undoStack.index].undo.forEach((row) => {
+    const index = indexByKey.get(getKey(row));
+    if (index !== undefined) {
+      newRows[index] = row;
+    }
   });
-  return {
-    stack: undoStack.stack,
-    rows,
-    index: undoStack.index - 1,
-  };
+  return [{ stack: undoStack.stack, index: undoStack.index - 1 }, newRows];
 };
 
-export const redo = <TRow>(undoStack: IUndoStack<TRow>): IUndoStack<TRow> => {
+export const redo = <TRow, TKey>(
+  undoStack: IUndoStack<TRow>,
+  rows: TRow[],
+  indexByKey: Map<TKey, number>,
+  getKey: (row: TRow) => TKey
+): [IUndoStack<TRow>, TRow[]] => {
   if (undoStack.index === undoStack.stack.length - 1) {
-    return undoStack;
+    return [undoStack, rows];
   }
-  const rows = [...undoStack.rows];
-  undoStack.stack[undoStack.index + 1].redo.forEach(({ row, y }) => {
-    rows[y] = row;
+  const newRows = [...rows];
+  undoStack.stack[undoStack.index + 1].redo.forEach((row) => {
+    const index = indexByKey.get(getKey(row));
+    if (index !== undefined) {
+      newRows[index] = row;
+    }
   });
-  return {
-    stack: undoStack.stack,
-    rows,
-    index: undoStack.index + 1,
-  };
+  return [{ stack: undoStack.stack, index: undoStack.index + 1 }, newRows];
 };
 
-export const push = <TRow>(
+export const push = <TRow, TKey>(
   undoStack: IUndoStack<TRow>,
-  changes: { row: TRow; y: number }[]
-): IUndoStack<TRow> => {
-  const rows = [...undoStack.rows];
-  changes.forEach(({ y, row }) => {
-    rows[y] = row;
+  rows: TRow[],
+  changes: TRow[],
+  indexByKey: Map<TKey, number>,
+  getKey: (row: TRow) => TKey
+): [IUndoStack<TRow>, TRow[]] => {
+  const newRows = [...rows];
+  const undoChanges: TRow[] = [];
+  changes.forEach((row) => {
+    const index = indexByKey.get(getKey(row));
+    if (index !== undefined) {
+      undoChanges.push(rows[index]);
+      newRows[index] = row;
+    }
   });
-  return {
-    stack: [
-      ...undoStack.stack.slice(0, undoStack.index + 1),
-      {
-        redo: changes,
-        undo: changes.map(({ y }) => ({ y, row: undoStack.rows[y] })),
-      },
-    ],
-    index: undoStack.index + 1,
-    rows,
-  };
+  return [
+    {
+      stack: [
+        ...undoStack.stack.slice(0, undoStack.index + 1),
+        {
+          redo: changes,
+          undo: undoChanges,
+        },
+      ],
+      index: undoStack.index + 1,
+    },
+    newRows,
+  ];
 };
 
-export const merge = <TRow>(
+export const merge = <TRow, TKey>(
   undoStack: IUndoStack<TRow>,
-  changes: { row: TRow; y: number }[]
-): IUndoStack<TRow> => {
-  const rows = [...undoStack.rows];
-  changes.forEach(({ y, row }) => {
-    rows[y] = row;
+  rows: TRow[],
+  changes: TRow[],
+  indexByKey: Map<TKey, number>,
+  getKey: (row: TRow) => TKey
+): [IUndoStack<TRow>, TRow[]] => {
+  const newRows = [...rows];
+  const undoChanges: TRow[] = [];
+  changes.forEach((row) => {
+    const index = indexByKey.get(getKey(row));
+    if (index !== undefined) {
+      undoChanges.push(rows[index]);
+      newRows[index] = row;
+    }
   });
-  return {
-    stack: [
-      ...undoStack.stack.slice(0, undoStack.index - 1),
-      {
-        redo: [...undoStack.stack[undoStack.index].redo, ...changes],
-        undo: [
-          ...changes.map(({ y }) => ({ y, row: undoStack.rows[y] })),
-          ...undoStack.stack[undoStack.index].undo,
-        ],
-      },
-    ],
-    rows,
-    index: undoStack.index,
-  };
+  return [
+    {
+      stack: [
+        ...undoStack.stack.slice(0, undoStack.index - 1),
+        {
+          redo: [...undoStack.stack[undoStack.index].redo, ...changes],
+          undo: [...undoChanges, ...undoStack.stack[undoStack.index].undo],
+        },
+      ],
+      index: undoStack.index,
+    },
+    newRows,
+  ];
 };

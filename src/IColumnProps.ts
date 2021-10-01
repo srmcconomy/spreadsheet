@@ -2,10 +2,9 @@ import React from "react";
 
 export type IColumnProps<TRow, TError> = {
   key: string;
-  renderHeader: () => React.ReactNode;
-  toString: (row: TRow) => string;
   renderCell: (props: {
     row: TRow;
+    errors: (TError | null)[];
     onChange: (row: TRow) => void;
     onEdit: () => void;
   }) => React.ReactNode;
@@ -14,8 +13,11 @@ export type IColumnProps<TRow, TError> = {
     onChange: (row: TRow) => void;
     onBlur: () => void;
   }) => React.ReactNode;
-  validate: (row: TRow) => TError | null;
+  onCopy: (row: TRow) => string;
   onPaste: (row: TRow, value: string) => TRow;
   onClear: (row: TRow) => TRow;
-  renderErrorTooltip: (error: TError) => React.ReactNode;
+  minWidth?: number;
+  maxWidth?: number;
+  borderLeftColor?: string;
+  borderRightColor?: string;
 };

@@ -1,8 +1,7 @@
 export type IUndoStack<TRow> = {
   stack: {
-    undo: { row: TRow; y: number }[];
-    redo: { row: TRow; y: number }[];
+    undo: TRow[];
+    redo: TRow[];
   }[];
-  rows: TRow[];
   index: number;
 };

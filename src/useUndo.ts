@@ -1,10 +1,10 @@
 import { useEffect } from "react";
-import { useEditingCellRef } from "./EditorContext";
+import { editingCellContext } from "./EditorContext";
 import { usePropsRef } from "./PropsContext";
 
 export const useUndo = <TRow, TError>() => {
   const propsRef = usePropsRef<TRow, TError>();
-  const { setEditingCell } = useEditingCellRef();
+  const setEditingCell = editingCellContext.useSetter();
 
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {

@@ -1,94 +1,113 @@
-import styled from "styled-components";
+import styled, { ThemeProvider } from "styled-components";
 import { selectionContext, isSelectingContext } from "./SelectionContext";
-import { useArrowKeyListeners } from "./useArrowKeyListeners";
 import { useCopy } from "./useCopy";
-import { EditingCellProvider } from "./EditorContext";
+import { editingCellContext } from "./EditorContext";
 import { usePaste } from "./usePaste";
 import { ITableProps } from "./ITableProps";
 import { PropsRefProvider } from "./PropsContext";
 import { Headers } from "./Headers";
 import { useUndo } from "./useUndo";
-import React, { useEffect } from "react";
-import { errorTooltipContext } from "./ErrorTooltipContext";
+import React from "react";
+import { hoveredCellContext } from "./hoveredCellContext";
 import { ErrorTooltip } from "./ErrorTooltip";
 import { Selection } from "./Selection";
-import { Editor } from "./EditorWrapper";
-import { viewportContext } from "./ViewportContext";
+import { Editor } from "./Editor";
+import { viewportSizeContext, viewportStartContext } from "./ViewportContext";
 import { Scroller } from "./Scroller";
 import { Rows } from "./Rows";
 import { stickyColumnContext } from "./StickyColumnContext";
+import { defaultTheme } from "./defaultTheme";
 
 export const Table = <TRow, TError>(props: ITableProps<TRow, TError>) => (
-  <PropsRefProvider props={props}>
-    <selectionContext.Provider>
-      <isSelectingContext.Provider>
-        <errorTooltipContext.Provider>
-          <EditingCellProvider>
-            <viewportContext.Provider>
-              <stickyColumnContext.Provider>
-                <TableContent {...props} />
-              </stickyColumnContext.Provider>
-            </viewportContext.Provider>
-          </EditingCellProvider>
-        </errorTooltipContext.Provider>
-      </isSelectingContext.Provider>
-    </selectionContext.Provider>
-  </PropsRefProvider>
+  <ThemeProvider theme={props.theme ?? defaultTheme}>
+    <PropsRefProvider props={props}>
+      <selectionContext.Provider>
+        <isSelectingContext.Provider>
+          <hoveredCellContext.Provider>
+            <editingCellContext.Provider>
+              <viewportSizeContext.Provider>
+                <viewportStartContext.Provider>
+                  <stickyColumnContext.Provider>
+                    <TableContent {...props} />
+                  </stickyColumnContext.Provider>
+                </viewportStartContext.Provider>
+              </viewportSizeContext.Provider>
+            </editingCellContext.Provider>
+          </hoveredCellContext.Provider>
+        </isSelectingContext.Provider>
+      </selectionContext.Provider>
+    </PropsRefProvider>
+  </ThemeProvider>
 );
 
 const TableContent = <TRow, TError>({
-  undoStack,
+  rows,
   columnProps,
   rowHeight,
   numStickyColumns,
+  numUnselectableColumns,
+  headers,
+  errors,
+  renderErrorTooltip,
 }: ITableProps<TRow, TError>) => {
-  const setIsSelecting = isSelectingContext.useSetter();
-  useArrowKeyListeners<TRow, TError>();
   useCopy<TRow, TError>();
   usePaste<TRow, TError>();
   useUndo<TRow, TError>();
-  useEffect(() => {
-    const listener = () => setIsSelecting(false);
-    window.addEventListener("mouseup", listener);
-    return () => window.removeEventListener("mouseup", listener);
-  }, []);
 
   return (
     <Scroller>
       <TableContainer
-        numColumns={columnProps.length}
-        numRows={undoStack.rows.length}
+        columnData={columnProps}
+        numRows={rows.length}
         rowHeight={rowHeight}
+        headers={headers}
       >
-        <Selection numStickyColumns={numStickyColumns} />
-        <Editor columnProps={columnProps} rows={undoStack.rows} />
-        <Headers
-          columnProps={columnProps}
+        <Selection
           numStickyColumns={numStickyColumns}
+          headers={headers}
+          rowHeight={rowHeight}
         />
+        <Editor
+          columnProps={columnProps}
+          rows={rows}
+          numHeaders={headers.length}
+        />
+        <Headers headers={headers} numStickyColumns={numStickyColumns} />
         <Rows
-          rows={undoStack.rows}
+          rows={rows}
           columnProps={columnProps}
           numStickyColumns={numStickyColumns}
+          numHeaders={headers.length}
+          errors={errors}
+          numUnselectableColumns={numUnselectableColumns}
         />
       </TableContainer>
-      <ErrorTooltip columnProps={columnProps} />
+      <ErrorTooltip renderErrorTooltip={renderErrorTooltip} errors={errors} />
     </Scroller>
   );
 };
 
 const TableContainer = styled.div<{
-  numColumns: number;
+  columnData: { minWidth?: number; maxWidth?: number }[];
   numRows: number;
   rowHeight: number;
+  headers: { height: number }[];
 }>`
   position: relative;
   display: grid;
-  grid-template-columns: repeat(${({ numColumns }) => numColumns}, max-content);
-  grid-template-rows: repeat(
-    ${({ numRows }) => numRows + 1},
-    ${({ rowHeight }) => `${rowHeight}px`}
-  );
+  grid-template-columns: ${({ columnData }) =>
+    columnData
+      .map(
+        ({ minWidth, maxWidth }) =>
+          `minmax(${minWidth ? `${minWidth}px` : "max-content"}, ${
+            maxWidth ? `${maxWidth}px` : "1fr"
+          })`
+      )
+      .join(" ")};
+  grid-template-rows: ${({ headers }) =>
+      headers.map(({ height }) => `${height}px`).join(" ")} repeat(
+      ${({ numRows }) => numRows},
+      ${({ rowHeight }) => `${rowHeight}px`}
+    );
   user-select: none;
-  width: max-content;
 `;

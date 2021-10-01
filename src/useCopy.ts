@@ -15,8 +15,8 @@ export const useCopy = <TRow, TError>() => {
         .map((_, y) =>
           [...new Array(selection.width)]
             .map((_, x) =>
-              propsRef.current.columnProps[selection.start.x + x].toString(
-                propsRef.current.undoStack.rows[selection.start.y + y]
+              propsRef.current.columnProps[selection.start.x + x].onCopy(
+                propsRef.current.rows[selection.start.y + y]
               )
             )
             .join("\t")

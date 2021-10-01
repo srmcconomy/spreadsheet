@@ -1,22 +1,30 @@
 import { IColumnProps } from "./IColumnProps";
 import { Row } from "./Row";
-import { viewportContext } from "./ViewportContext";
+import { viewportStartContext, viewportSizeContext } from "./ViewportContext";
 import React from "react";
 
 export const Rows = <TRow, TError>({
   numStickyColumns,
   rows,
   columnProps,
+  numHeaders,
+  errors,
+  numUnselectableColumns,
 }: {
   numStickyColumns: number;
   rows: TRow[];
   columnProps: IColumnProps<TRow, TError>[];
+  numHeaders: number;
+  errors: (TError | null)[][];
+  numUnselectableColumns: number;
 }) => {
-  const viewportStart = viewportContext.useState();
+  const viewportStart = viewportStartContext.useState();
+  const viewportSize = viewportSizeContext.useState();
   return (
     <>
-      {[...new Array(20)].map((_, y) => {
-        const actualY = Math.ceil((viewportStart - y) / 20) * 20 + y - 1;
+      {[...new Array(viewportSize)].map((_, y) => {
+        const actualY =
+          Math.ceil((viewportStart - y) / viewportSize) * viewportSize + y - 1;
         return (
           <Row
             y={actualY}
@@ -24,6 +32,9 @@ export const Rows = <TRow, TError>({
             key={y}
             columnProps={columnProps}
             numStickyColumns={numStickyColumns}
+            numHeaders={numHeaders}
+            errors={errors[actualY]}
+            numUnselectableColumns={numUnselectableColumns}
           />
         );
       })}
