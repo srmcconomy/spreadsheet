@@ -2,11 +2,11 @@ import React from "react";
 import { IColumnProps } from "./IColumnProps";
 import { ITheme } from "./ITheme";
 
-export type ITableProps<TRow, TError> = {
+export type ITableProps<TRow, TChange, TError> = {
   rows: TRow[];
   errors: (TError | null)[][];
-  columnProps: IColumnProps<TRow, TError>[];
-  onChange: (changes: TRow[]) => void;
+  columnProps: IColumnProps<TRow, TChange, TError>[];
+  onChange: (changes: TChange[]) => void;
   onUndo: () => void;
   onRedo: () => void;
   rowHeight: number;

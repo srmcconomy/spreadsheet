@@ -18,7 +18,9 @@ import { Rows } from "./Rows";
 import { stickyColumnContext } from "./StickyColumnContext";
 import { defaultTheme } from "./defaultTheme";
 
-export const Table = <TRow, TError>(props: ITableProps<TRow, TError>) => (
+export const Table = <TRow, TChange, TError>(
+  props: ITableProps<TRow, TChange, TError>
+) => (
   <ThemeProvider theme={props.theme ?? defaultTheme}>
     <PropsRefProvider props={props}>
       <selectionContext.Provider>
@@ -40,7 +42,7 @@ export const Table = <TRow, TError>(props: ITableProps<TRow, TError>) => (
   </ThemeProvider>
 );
 
-const TableContent = <TRow, TError>({
+const TableContent = <TRow, TChange, TError>({
   rows,
   columnProps,
   rowHeight,
@@ -49,10 +51,10 @@ const TableContent = <TRow, TError>({
   headers,
   errors,
   renderErrorTooltip,
-}: ITableProps<TRow, TError>) => {
-  useCopy<TRow, TError>();
-  usePaste<TRow, TError>();
-  useUndo<TRow, TError>();
+}: ITableProps<TRow, TChange, TError>) => {
+  useCopy<TRow, TChange, TError>();
+  usePaste<TRow, TChange, TError>();
+  useUndo<TRow, TChange, TError>();
 
   return (
     <Scroller>

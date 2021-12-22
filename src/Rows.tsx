@@ -3,7 +3,7 @@ import { Row } from "./Row";
 import { viewportStartContext, viewportSizeContext } from "./ViewportContext";
 import React from "react";
 
-export const Rows = <TRow, TError>({
+export const Rows = <TRow, TChange, TError>({
   numStickyColumns,
   rows,
   columnProps,
@@ -13,7 +13,7 @@ export const Rows = <TRow, TError>({
 }: {
   numStickyColumns: number;
   rows: TRow[];
-  columnProps: IColumnProps<TRow, TError>[];
+  columnProps: IColumnProps<TRow, TChange, TError>[];
   numHeaders: number;
   errors: (TError | null)[][];
   numUnselectableColumns: number;

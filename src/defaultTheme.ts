@@ -16,6 +16,7 @@ export const defaultTheme: ITheme = {
   cells: {
     borderColor: "#dddddd",
     backgroundColor: "white",
+    readonlyBackgroundColor: "#eeeeee",
   },
 
   headers: {

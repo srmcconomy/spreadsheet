@@ -24,13 +24,13 @@ export const ErrorTooltip = <TError extends unknown>({
 
   const [visible, setVisible] = useState(false);
   useEffect(() => {
+    setVisible(false);
     if (error) {
-      const timeout = setTimeout(() => setVisible(true), 0);
+      const timeout = setTimeout(() => setVisible(true), 500);
       return () => clearTimeout(timeout);
     }
-    setVisible(false);
     return;
-  }, [error]);
+  }, [error, x, y, isSelecting]);
 
   return ReactDOM.createPortal(
     <TooltipContainer

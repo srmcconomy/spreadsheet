@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { editingCellContext } from "./EditorContext";
 import { usePropsRef } from "./PropsContext";
 
-export const useUndo = <TRow, TError>() => {
-  const propsRef = usePropsRef<TRow, TError>();
+export const useUndo = <TRow, TChange, TError>() => {
+  const propsRef = usePropsRef<TRow, TChange, TError>();
   const setEditingCell = editingCellContext.useSetter();
 
   useEffect(() => {

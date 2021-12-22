@@ -10,6 +10,7 @@ type IProps = {
   children: React.ReactNode;
   numHeaders: number;
   isSelectable: boolean;
+  isReadonly: boolean;
   borderRightColor?: string;
 };
 
@@ -20,6 +21,7 @@ export const StickyCell = ({
   numHeaders,
   children,
   isSelectable,
+  isReadonly,
   borderRightColor,
 }: IProps) => {
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
@@ -71,6 +73,7 @@ export const StickyCell = ({
       }}
       isSelectable={isSelectable}
       borderRightColor={borderRightColor}
+      isReadonly={isReadonly}
     >
       {children}
     </CellWrapper>

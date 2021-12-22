@@ -2,9 +2,9 @@ import { useEffect } from "react";
 import { usePropsRef } from "./PropsContext";
 import { selectionContext } from "./SelectionContext";
 
-export const useCopy = <TRow, TError>() => {
+export const useCopy = <TRow, TChange, TError>() => {
   const selectionRef = selectionContext.useRef();
-  const propsRef = usePropsRef<TRow, TError>();
+  const propsRef = usePropsRef<TRow, TChange, TError>();
   useEffect(() => {
     document.addEventListener("copy", (e) => {
       const selection = selectionRef.current;

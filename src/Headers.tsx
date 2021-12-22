@@ -26,47 +26,45 @@ export const Headers = ({
       {headers.map(({ row, height, borderBottomColor }, y) => {
         const currentTop = top;
         top += height;
-        return row.map(
-          ({ key, component, columnSpan, borderRightColor }, x) => {
-            return x < numStickyColumns ? (
-              <StickyHeader
-                key={`${key}:${y}`}
-                x={x}
-                style={{
-                  top: currentTop,
-                  gridRowStart: `${y + 1}`,
-                  gridColumn: `${x + 1} / ${x + 1 + columnSpan}`,
-                }}
-                borderBottomColor={
-                  borderBottomColor ?? headers[y + 1]?.borderTopColor
-                }
-                borderRightColor={
-                  borderRightColor ?? row[x + 1]?.borderLeftColor
-                }
-              >
-                {component}
-              </StickyHeader>
-            ) : (
-              <HeaderCell
-                key={key}
-                style={{
-                  top: currentTop,
-                  zIndex: 2,
-                  gridRowStart: `${y + 1}`,
-                  gridColumn: `${x + 1} / ${x + 1 + columnSpan}`,
-                }}
-                borderBottomColor={
-                  borderBottomColor ?? headers[y + 1]?.borderTopColor
-                }
-                borderRightColor={
-                  borderRightColor ?? row[x + 1]?.borderLeftColor
-                }
-              >
-                {component}
-              </HeaderCell>
-            );
-          }
-        );
+
+        let currentX = 0;
+        return row.map(({ key, component, columnSpan, borderRightColor }) => {
+          const x = currentX;
+          currentX += columnSpan;
+          return x < numStickyColumns ? (
+            <StickyHeader
+              key={`${key}:${y}`}
+              x={x}
+              style={{
+                top: currentTop,
+                gridRowStart: `${y + 1}`,
+                gridColumn: `${x + 1} / ${x + 1 + columnSpan}`,
+              }}
+              borderBottomColor={
+                borderBottomColor ?? headers[y + 1]?.borderTopColor
+              }
+              borderRightColor={borderRightColor ?? row[x + 1]?.borderLeftColor}
+            >
+              {component}
+            </StickyHeader>
+          ) : (
+            <HeaderCell
+              key={key}
+              style={{
+                top: currentTop,
+                zIndex: 2,
+                gridRowStart: `${y + 1}`,
+                gridColumn: `${x + 1} / ${x + 1 + columnSpan}`,
+              }}
+              borderBottomColor={
+                borderBottomColor ?? headers[y + 1]?.borderTopColor
+              }
+              borderRightColor={borderRightColor ?? row[x + 1]?.borderLeftColor}
+            >
+              {component}
+            </HeaderCell>
+          );
+        });
       })}
     </>
   );

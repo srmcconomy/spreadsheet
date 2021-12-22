@@ -9,6 +9,7 @@ type IProps = {
   children: React.ReactNode;
   numHeaders: number;
   isSelectable: boolean;
+  isReadonly: boolean;
   borderRightColor?: string;
 };
 
@@ -19,6 +20,7 @@ export const StaticCell = ({
   hasError,
   children,
   isSelectable,
+  isReadonly,
   borderRightColor,
 }: IProps) => {
   const viewportSize = viewportSizeContext.useState();
@@ -35,6 +37,7 @@ export const StaticCell = ({
       y={y}
       hasError={hasError}
       isSelectable={isSelectable}
+      isReadonly={isReadonly}
       borderRightColor={borderRightColor}
     >
       {children}

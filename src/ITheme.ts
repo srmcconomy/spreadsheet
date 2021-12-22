@@ -7,6 +7,7 @@ export type ITheme = {
   cells: {
     borderColor: string;
     backgroundColor: string;
+    readonlyBackgroundColor: string;
   };
 
   selection: {

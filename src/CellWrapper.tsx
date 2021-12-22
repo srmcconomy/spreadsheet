@@ -12,11 +12,21 @@ type IProps = {
   hasError: boolean;
   isSelectable: boolean;
   borderRightColor?: string;
+  isReadonly: boolean;
 };
 
 export const CellWrapper = React.forwardRef(
   (
-    { x, y, style, children, hasError, isSelectable, borderRightColor }: IProps,
+    {
+      x,
+      y,
+      style,
+      children,
+      hasError,
+      isSelectable,
+      borderRightColor,
+      isReadonly,
+    }: IProps,
     ref: React.ForwardedRef<HTMLDivElement>
   ) => {
     const setSelection = selectionContext.useSetter();
@@ -63,7 +73,7 @@ export const CellWrapper = React.forwardRef(
             : undefined
         }
         onDoubleClick={
-          isSelectable
+          isSelectable && !isReadonly
             ? () => {
                 setEditingCell({ x, y });
               }
@@ -90,6 +100,7 @@ export const CellWrapper = React.forwardRef(
         }}
         style={style}
         borderRightColor={borderRightColor}
+        isReadonly={isReadonly}
       >
         {hasError ? (
           <>
@@ -112,12 +123,18 @@ const InvalidIndicator = styled.div`
   top: 0;
 `;
 
-const CellContainer = styled.div<{ borderRightColor?: string }>`
+const CellContainer = styled.div<{
+  borderRightColor?: string;
+  isReadonly: boolean;
+}>`
   border-right: 1px solid
     ${({ borderRightColor, theme }) =>
       borderRightColor ?? theme.cells.borderColor};
   border-bottom: 1px solid ${({ theme }) => theme.cells.borderColor};
-  background: ${({ theme }) => theme.cells.backgroundColor};
+  background: ${({ isReadonly, theme }) =>
+    isReadonly
+      ? theme.cells.readonlyBackgroundColor
+      : theme.cells.backgroundColor};
   display: flex;
   align-items: center;
 `;

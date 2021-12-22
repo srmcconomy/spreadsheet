@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { usePropsRef } from "./PropsContext";
 import { selectionContext } from "./SelectionContext";
 
-export const usePaste = <TRow, TError>() => {
-  const propsRef = usePropsRef<TRow, TError>();
+export const usePaste = <TRow, TChange, TError>() => {
+  const propsRef = usePropsRef<TRow, TChange, TError>();
   const selectionRef = selectionContext.useRef();
   const setSelection = selectionContext.useSetter();
 
@@ -28,18 +28,28 @@ export const usePaste = <TRow, TError>() => {
       const repeatY =
         Math.floor(selectionRef.current.height / pastedRows.length) || 1;
 
-      const changes: TRow[] = [];
+      const changes: TChange[] = [];
       for (let y = 0; y < pastedRows.length * repeatY; y++) {
-        let newRow = propsRef.current.rows[selectionRef.current.start.y + y];
+        const row = propsRef.current.rows[selectionRef.current.start.y + y];
+        let combinedChange = null;
         for (let x = 0; x < pastedRows[0].length * repeatX; x++) {
-          newRow = propsRef.current.columnProps[
-            selectionRef.current.start.x + x
-          ].onPaste(
-            newRow,
-            pastedRows[y % pastedRows.length][x % pastedRows[0].length]
-          );
+          const isReadonly =
+            propsRef.current.columnProps[
+              selectionRef.current.start.x + x
+            ].isReadonly?.(row) ?? false;
+          if (!isReadonly) {
+            combinedChange = propsRef.current.columnProps[
+              selectionRef.current.start.x + x
+            ].onPaste(
+              row,
+              combinedChange,
+              pastedRows[y % pastedRows.length][x % pastedRows[0].length]
+            );
+          }
         }
-        changes.push(newRow);
+        if (combinedChange) {
+          changes.push(combinedChange);
+        }
       }
       propsRef.current.onChange(changes);
 

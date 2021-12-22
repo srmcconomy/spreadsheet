@@ -6,17 +6,17 @@ import { selectionContext } from "./SelectionContext";
 import { StaticCell } from "./StaticCell";
 import { StickyCell } from "./StickyCell";
 
-type IProps<TRow, TError> = {
+type IProps<TRow, TChange, TError> = {
   y: number;
   row: TRow;
-  columnProps: IColumnProps<TRow, TError>[];
+  columnProps: IColumnProps<TRow, TChange, TError>[];
   errors: (TError | null)[];
   numStickyColumns: number;
   numHeaders: number;
   numUnselectableColumns: number;
 };
 
-export const Row = <TRow, TError>({
+export const Row = <TRow, TChange, TError>({
   y,
   row,
   columnProps,
@@ -24,7 +24,7 @@ export const Row = <TRow, TError>({
   numHeaders,
   errors,
   numUnselectableColumns,
-}: IProps<TRow, TError>) =>
+}: IProps<TRow, TChange, TError>) =>
   useMemo(
     () => (
       <MemoRow
@@ -48,7 +48,7 @@ export const Row = <TRow, TError>({
     ]
   );
 
-const MemoRow = <TRow, TError>({
+const MemoRow = <TRow, TChange, TError>({
   y,
   row,
   columnProps,
@@ -56,8 +56,8 @@ const MemoRow = <TRow, TError>({
   numStickyColumns,
   numHeaders,
   numUnselectableColumns,
-}: IProps<TRow, TError>) => {
-  const propsRef = usePropsRef();
+}: IProps<TRow, TChange, TError>) => {
+  const propsRef = usePropsRef<TRow, TChange, TError>();
   const setEditingCell = editingCellContext.useSetter();
   const setSelection = selectionContext.useSetter();
 
@@ -69,6 +69,7 @@ const MemoRow = <TRow, TError>({
     <>
       {columnProps.map((props, x) => {
         const error = errors[x];
+        const isReadonly = props.isReadonly?.(row) ?? false;
         const content = props.renderCell({
           row,
           onEdit: () => {
@@ -81,7 +82,8 @@ const MemoRow = <TRow, TError>({
             });
           },
           errors,
-          onChange: (row) => propsRef.current.onChange([{ y, row }]),
+          isReadonly,
+          onChange: (row) => propsRef.current.onChange([row]),
         });
         return x < numStickyColumns ? (
           <StickyCell
@@ -94,6 +96,7 @@ const MemoRow = <TRow, TError>({
             borderRightColor={
               props.borderRightColor ?? columnProps[x + 1]?.borderLeftColor
             }
+            isReadonly={isReadonly}
           >
             {content}
           </StickyCell>
@@ -108,6 +111,7 @@ const MemoRow = <TRow, TError>({
             borderRightColor={
               props.borderRightColor ?? columnProps[x + 1]?.borderLeftColor
             }
+            isReadonly={isReadonly}
           >
             {content}
           </StaticCell>
