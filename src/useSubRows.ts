@@ -27,9 +27,9 @@ export const useSubRows = <TElement, TRow, TKey, TError>(
     errorsRef.current &&
     errorGroupsRef.current
   ) {
-    needFullReindex = false;
     if (prevElements.current !== elements) {
       if (prevElements.current?.length === elements.length) {
+        needFullReindex = false;
         const changedIndices = prevElements.current
           .map((_, i) => i)
           .filter(
@@ -67,8 +67,6 @@ export const useSubRows = <TElement, TRow, TKey, TError>(
         errorsRef.current = newErrors;
         errorGroupsRef.current = newErrorGroups;
       }
-    } else {
-      needFullReindex = true;
     }
   }
 

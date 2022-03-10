@@ -25,13 +25,13 @@ module.exports = {
     ],
   },
   externals: {
-    react: 'react',
-    reactDOM: 'react-dom',
-    coreJS: 'core-js',
-    babelRuntime: '@babel/runtime',
-    reactIs: 'react-is',
-    styledComponents: 'styled-components'
-  }
+    react: "react",
+    reactDOM: "react-dom",
+    coreJS: "core-js",
+    babelRuntime: "@babel/runtime",
+    reactIs: "react-is",
+    styledComponents: "styled-components",
+  },
   resolve: {
     extensions: [".js", ".ts", ".jsx", ".tsx", ".json"],
   },
